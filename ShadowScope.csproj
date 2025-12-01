@@ -13,11 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepuPhysics" Version="2.4.0" />
-    <PackageReference Include="BepuUtilities" Version="2.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Resources\Images\Frame 1.png" />
   </ItemGroup>
 

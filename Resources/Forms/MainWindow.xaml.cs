@@ -32,8 +32,14 @@ namespace ShadowScope
             Physics.Radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
             Physics.DistanceToScreen = ValidateInput(0, 10000, textBox_Расстояние_до_экрана.Text);
             Physics.Speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
-            Physics.Count = ValidateInput(1, 1000000, textBox_Количество.Text);
-            Physics.DistributionType = comboBox.SelectedIndex;
+            Physics.Count = (int)ValidateInput(1, 1000000, textBox_Количество.Text);
+            Physics.Distro = comboBox.SelectedIndex switch
+            {
+                0 => DistributionType.Uniform,
+                1 => DistributionType.Normal,
+                2 => DistributionType.Rayleigh,
+                _ => DistributionType.Uniform
+            };
         }
         /// <summary>
         /// Проверяет, что указанная строка ввода представляет числовое значение в заданном диапазоне.
