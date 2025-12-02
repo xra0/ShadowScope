@@ -1,11 +1,15 @@
 ﻿namespace ShadowScope.Resources.Code
 {
+    /// <summary>
+    /// Представляет структуру для управления свойствами шаров.
+    /// </summary>
     internal static class Balls
     {
-        // Свойства шара
+        // Свойства шаров
         private static double radius;  // Радиус шара
         private static double speed;   // Скорость шара
         private static int _count;     // Количество шаров
+
         /// <summary>
         /// Возвращает или задает, радиус шара.
         /// </summary>
@@ -19,8 +23,9 @@
                     radius = value;
             }
         }
+
         /// <summary>
-        /// Возвращает или задает скорость шара.
+        /// Представляет собой скорость шара.
         /// </summary>
         /// <remarks>Скорость должна быть больше нуля. Есть валидация.</remarks>
         public static double Speed
@@ -32,8 +37,9 @@
                     speed = value;
             }
         }
+
         /// <summary>
-        /// Задает количество шаров
+        /// Представляет собой количество шаров.
         /// </summary>
         /// <remarks>Количество шаров должно быть не отрицательным. Есть валидация.</remarks>
         public static int Count

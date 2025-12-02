@@ -1,13 +1,22 @@
-﻿public struct Vec2
+﻿/// <summary>
+/// Представляет двумерный вектор с компонентами X и Y двойной точности.
+/// </summary>
+/// <remarks>Структура Vec2 предоставляет простой способ хранения и обработки двумерных координат или векторов. 
+/// Она часто используется в графике, геометрии и математических вычислениях, где требуются двумерные данные.</remarks>
+public struct Vec2
 {
-    public double X;
-    public double Y;
+    public double X;    // Компонент X вектора
+    public double Y;    // Компонент Y вектора
 
-    public Vec2(double x, double y)
+    public Vec2(double x, double y) // Конструктор для инициализации вектора
     {
         X = x;
         Y = y;
     }
 
+    /// <summary>
+    /// Возвращает строковое представление экземпляра Vec2 в формате (X, Y) с тремя знаками после запятой.
+    /// </summary>
+    /// <returns>Строка</returns>
     public override string ToString() => $"({X:F3}, {Y:F3})";
 }

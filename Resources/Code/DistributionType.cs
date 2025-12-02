@@ -4,8 +4,8 @@
 /// <remarks>1 - Равномерное, 2 - Нормальное, 3 - Релея</remarks>
 public enum DistributionType
 {
-    Uniform,
-    Normal,
-    Rayleigh,
+    Uniform,    // Равномерное распределение
+    Normal,     // Нормальное распределение
+    Rayleigh,   // Распределение Релея
     // Новые типы распределений
 }

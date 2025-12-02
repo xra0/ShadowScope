@@ -4,7 +4,6 @@ using ShadowScope.Resources.Code;
 using System.ComponentModel;
 using System.Windows;
 
-
 namespace ShadowScope
 {
     /// <summary>
@@ -12,8 +11,12 @@ namespace ShadowScope
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private double _progressValue;
-        public event PropertyChangedEventHandler PropertyChanged;
+        private double _progressValue;  // Значение прогресса для ProgressBar
+        public event PropertyChangedEventHandler PropertyChanged;   // Событие для уведомления об изменении свойства
+
+        /// <summary>
+        /// Представляет собой значение прогресса для ProgressBar.
+        /// </summary>
         public double ProgressValue
         {
             get => _progressValue;
@@ -26,7 +29,8 @@ namespace ShadowScope
                 }
             }
         }
-        public MainWindow()
+
+        public MainWindow() // Конструктор главного окна
         {
             InitializeComponent();
             ExtraInitialize();
@@ -45,7 +49,7 @@ namespace ShadowScope
         /// </summary>
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            // 1. Считывание и валидация параметров
+            // Считывание и валидация параметров
             LightPlane.Thickness = ValidateInput(0.0001, 1000, textBox_Толщина.Text);
             LightPlane.Angle = ValidateInput(0, 180, textBox_Угол.Text);
             LightPlane.DistanceToScreen = ValidateInput(0, 10000, textBox_Расстояние_до_экрана.Text);
@@ -62,29 +66,27 @@ namespace ShadowScope
                 _ => DistributionType.Uniform
             };
 
-            // 2. Сброс прогресса
+            // Сброс прогресса
             ProgressValue = 0;
 
-            // 3. Инициализация физики и плоскости
+            // Инициализация физики и плоскости
             Physics.InitializePhysics();
             LightPlane.CalculatePosition();
             Physics.ResetPhysics();
 
             int totalSteps = (int)Physics.Time;
 
-            // 4. Запуск расчёта физики в фоне
+            // Запуск расчёта физики в фоне(асинхронно)
             await Task.Run(() =>
             {
                 Physics.Start(progress =>
                 {
-                    // Обновляем ProgressBar не каждый шаг, а каждые 1000 итераций для плавности
                     if (progress % Math.Max(1, totalSteps / 1000) == 0)
                         Dispatcher.Invoke(() => ProgressValue = progress);
                 });
             });
 
-            // 5. Построение графика после завершения расчетов
-            DrawShadowGraph();
+            DrawShadowGraph();  // Отрисовка графика тени
         }
         /// <summary>
         /// Проверяет, что указанная строка ввода представляет числовое значение в заданном диапазоне.
@@ -116,35 +118,40 @@ namespace ShadowScope
             return value;
         }
 
+        /// <summary>
+        /// Метод для отрисовки графика площади тени.
+        /// </summary>
+        /// <remarks>Используется библиотека OxyPlot для построения графика.</remarks>
         private void DrawShadowGraph()
         {
-            var plotModel = new PlotModel { Title = "Площадь тени" };
-            var series = new LineSeries
+            var plotModel = new PlotModel { Title = "Площадь тени" };   // Создание модели графика с заголовком
+            var series = new LineSeries     // Создание серии данных для графика
             {
                 Title = "Тень",
                 StrokeThickness = 2,
                 LineStyle = LineStyle.Solid,
-                MarkerType = MarkerType.None
-                
+                MarkerType = MarkerType.None,
+                Color = OxyColors.Blue
             };
 
             for (int i = 0; i < Physics.SumArea.Length; i++)
-                series.Points.Add(new DataPoint(i, Physics.SumArea[i]));
+                series.Points.Add(new DataPoint(i, Physics.SumArea[i]));    // Добавление точек данных в серию
 
-            plotModel.Series.Add(series);
+            plotModel.Series.Add(series);   // Добавление серии в модель графика
 
+            // Настройка осей графика
             plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
             {
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
-                Title = "Время"
+                Title = "Время, с"
             });
             plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
             {
                 Position = OxyPlot.Axes.AxisPosition.Left,
-                Title = "Площадь тени"
+                Title = "Площадь тени м²"
             });
 
-            shadowPlot.Model = plotModel;
+            shadowPlot.Model = plotModel;   // Установка модели графика в элемент управления
         }
 
     }

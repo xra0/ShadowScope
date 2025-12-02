@@ -5,11 +5,19 @@
     /// </summary>
     public static class LightPlane
     {
-        private static double thickness;
-        private static double angle;
+        private static double thickness;    // Толщина плоскости
+        private static double angle;        // Угол наклона плоскости в градусах
 
-        public static Vec2[] Position { get; private set; }
+        /// <summary>
+        /// Массив из четырёх вершин плоскости.
+        /// </summary>
+        /// <remarks>Позиции хранятся в порядке: нижняя левая, верхняя левая, верхняя правая, нижняя правая.</remarks>
+        public static Vec2[] Position { get; private set; } // Позиции четырёх вершин плоскости
 
+        /// <summary>
+        /// Толщина плоскости.
+        /// </summary>
+        /// <remarks>Толщина должна быть больше нуля.</remarks>
         public static double Thickness
         {
             get => thickness;
@@ -21,6 +29,10 @@
             }
         }
 
+        /// <summary>
+        /// Угол наклона плоскости в градусах.
+        /// </summary>
+        /// <remarks>Допустимый диапазон угла от -90 до 90 градусов.</remarks>
         public static double Angle
         {
             get => angle;
@@ -35,16 +47,25 @@
         /// <summary>
         /// Расстояние от плоскости света до экрана.
         /// </summary>
-        public static double DistanceToScreen { get; internal set; }
+        /// <remarks>Расстояние не может быть отрицательным.</remarks>
+        public static double DistanceToScreen { get; 
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Расстояние до экрана не может быть отрицательным.");
+            } 
+        }
 
         /// <summary>
-        /// Вычисляет четыре вершины наклонённой плоскости.
+        /// Метод для расчёта позиций четырёх вершин плоскости.
         /// </summary>
+        /// <param name="step">Шаг точности</param>
+        /// <returns>Vec2 Массив координат</returns>
         public static Vec2[] CalculatePosition(double step = 0.01)
         {
-            double distanceToPlane = Balls.Count * 100 + DistanceToScreen;
+            double distanceToPlane = Balls.Count * 100 + DistanceToScreen;  // Расстояние до плоскости света
 
-            double angleRad = Angle * Math.PI / 180.0;
+            double angleRad = Angle * Math.PI / 180.0;  // угол в радианах
 
             // смещение по толщине с учётом угла
             double dx = Thickness * Math.Sin(angleRad);
@@ -56,11 +77,15 @@
             Vec2 R2 = new Vec2(distanceToPlane + Thickness, 0); // нижняя правая
             Vec2 R1 = new Vec2(distanceToPlane + dx + Thickness, dy); // верхняя правая
 
-            Position = new Vec2[] { L1, L2, R1, R2 };
-            return Position;
+            return Position = [L1, L2, R1, R2];
         }
 
-        public static string ToString_()
+        /// <summary>
+        /// Метод для получения строкового представления плоскости.
+        /// </summary>
+        /// <remarks>Нужно для отладки.</remarks>
+        /// <returns>Строка с информацией о плоскости</returns>
+        private static string ToString_()
         {
             return $"LightPlane(Толщина: {Thickness}, Угол: {Angle}, " +
                    $"Позиции: [{string.Join(", ", Position.Select(p => p.ToString()))}])";
