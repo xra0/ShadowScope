@@ -3,8 +3,8 @@
 ShadowScope — WPF-приложение для моделирования и визуализации площади тени, создаваемой движущимися сферическими объектами, проходящими через наклонённую плоскость перед экраном. Позволяет анализировать различные распределения и строить графики зависимости тени от времени.
 
 ---
-<img width="809" height="471" alt="image" src="https://github.com/user-attachments/assets/2339b5fc-9119-4e9c-9322-fec84f59b32e" />
 
+<img width="1000" height="600" alt="scheme" src="https://github.com/user-attachments/assets/164f05fb-8b88-4421-8a31-9bb59becfc7a" />
 
 ## Возможности
 
@@ -70,6 +70,8 @@ x=Clamp(r,0,1)
 - отображает линию без точек,
 
 - показывает зависимость Площадь тени → Время.
+
+<img width="809" height="471" alt="image" src="https://github.com/user-attachments/assets/2339b5fc-9119-4e9c-9322-fec84f59b32e" />
 
 ## Производительность
 
