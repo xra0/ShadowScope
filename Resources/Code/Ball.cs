@@ -1,4 +1,4 @@
-﻿namespace ShadowModel.Resources.Code
+﻿namespace ShadowScope.Resources.Code
 {
     /// <summary>
     /// Класс, представляющий шар с радиусом, скоростью и позицией.
@@ -7,6 +7,7 @@
     {
         private double radius;  // Радиус шара
         private double speed;   // Скорость шара
+        private static double area;    // Площадь шара
         /// <summary>
         /// Положение шара в 2D пространстве.
         /// </summary>
@@ -18,17 +19,17 @@
         public double Radius
         {
             get { return radius; }
-            set 
-            { 
-                if (value > 0) 
-                    radius = value; 
+            set
+            {
+                if (value > 0)
+                    radius = value;
             }
         }
         /// <summary>
         /// Возвращает или задает скорость шара.
         /// </summary>
         /// <remarks>Скорость должна быть больше нуля. Есть валидация.</remarks>
-        public double Speed 
+        public double Speed
         {
             get { return speed; }
             set
@@ -40,32 +41,76 @@
         /// <summary>
         /// Задает площадь от малого времени(dt)
         /// </summary>
-        private static double DS { get; set; }
+        private static double DS
+        {
+            get
+            {
+                return area / Physics.DTime;
+            }
+        }
         /// <summary>
         /// Возвращает площадь шара
         /// </summary>
-        public double Area => Math.PI * Radius * Radius;
+        public double Area { get; set; }
         /// <summary>
         /// Возвращает площадь шара за малое время(dt)
         /// </summary>
         /// <remarks>Используется для сохранения вошедшей части шара в плоскость.</remarks>
-        public static double AreaDt { get; internal set; } = 0;
+        public double AreaDt { get; internal set; }
         public Ball() { }
         public Ball(double radius, double speed, Point position)
         {
             Radius = radius;
             Speed = speed;
             Position = position;
+            Area = Math.PI * Radius * Radius;
+            AreaDt = Area / Physics.Time;
         }
         /// <summary>
         /// Метод для проверки пересечения шара с плоскостью.
         /// </summary>
+        /// <remarks>Выполняется только по оси X.</remarks>
         /// <param name="plane">Плоскость света.</param>
         /// <returns>Возвращает true, если шар пересекает плоскость, иначе false.</returns>
-        public bool Intersects(LightPlane plane)
+        public bool IntersectsPlaneX()
         {
-            // TODO: Реализовать проверку пересечения шара с плоскостью
-            return false; // Пересечений нет
+            // Получаем углы плоскости
+            Point leftBottom = LightPlane.Position[0];
+            Point leftTop = LightPlane.Position[1];
+            Point rightTop = LightPlane.Position[2];
+            Point rightBottom = LightPlane.Position[3];
+
+            double y = Position.Y;
+
+            // 1) Находим X левой и правой граней в точке Y шара
+            double leftX = InterpolateXByY(leftTop, leftBottom, y);
+            double rightX = InterpolateXByY(rightTop, rightBottom, y);
+
+            // 2) Находим границы шара по X
+            double ballLeft = Position.X - Radius;
+            double ballRight = Position.X + Radius;
+
+            // 3) Пересечение только по X
+            bool intersects =
+                ballRight >= leftX &&   // правая часть шара пересекает левую грань
+                ballLeft <= rightX;     // левая часть шара пересекает правую грань
+
+            return intersects;
+        }
+        /// <summary>
+        /// Метод для интерполяции X по Y между двумя точками.
+        /// </summary>
+        /// <param name="a">Первая точка</param>
+        /// <param name="b">Вторая точка</param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        private double InterpolateXByY(Point a, Point b, double y)
+        {
+            if (Math.Abs(b.Y - a.Y) < 0.0001)
+                return a.X; // грань горизонтальна
+
+            double t = (y - a.Y) / (b.Y - a.Y);
+            return a.X + (b.X - a.X) * t;
         }
         /// <summary>
         /// Метод для перемещения шара на основе его скорости и времени.
@@ -73,7 +118,7 @@
         /// <param name="dt">Шаг времени.</param>
         public void MoveBall(double dt)
         {
-            Position.X += Speed * dt;
+            Position.X += (int)(Speed * dt);
         }
         /// <summary>
         /// Возвращает строковое представление шара.

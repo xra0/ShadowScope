@@ -1,13 +1,14 @@
-﻿namespace ShadowModel.Resources.Code
+﻿namespace ShadowScope.Resources.Code
 {
     /// <summary>
     /// Класс, представляющий точку в 2D пространстве.
     /// </summary>
     public class Point
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public Point(double x, double y)
+        // TODO: Добавить 3 координату Z для 3D пространства
+        public int X { get; set; }
+        public int Y { get; set; }
+        public Point(int x, int y)
         {
             X = x;
             Y = y;
