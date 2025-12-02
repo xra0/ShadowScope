@@ -21,12 +21,12 @@
             <Label x:Name="Свойства_Плоскости" Content="Свойства плоскости" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" FontWeight="Bold"/>
             <Label x:Name="Толщина" Content="Толщина, м" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,34,0,0" d:LayoutOverrides="HorizontalAlignment"/>
             <TextBox x:Name="textBox_Угол" TextWrapping="Wrap" Margin="80,68,5,0" Height="20" VerticalAlignment="Top"/>
-            <Label x:Name="Угол" Content="Угол, о" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,65,0,0" d:LayoutOverrides="HorizontalAlignment"/>
+            <Label x:Name="Угол" Content="Угол, градус" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,65,0,0" d:LayoutOverrides="HorizontalAlignment"/>
             <TextBox x:Name="textBox_Скорость" TextWrapping="Wrap" Margin="102,149,5,0" Height="20" VerticalAlignment="Top" d:LayoutOverrides="VerticalAlignment"/>
             <Label x:Name="Свойства_шаров" Content="Свойства шаров" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,118,0,0" FontWeight="Bold"/>
-            <Label x:Name="Скорость" Content="Скорость, м" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,146,0,0" d:LayoutOverrides="HorizontalAlignment"/>
+            <Label x:Name="Скорость" Content="Скорость, м/с" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,146,0,0" d:LayoutOverrides="HorizontalAlignment"/>
             <TextBox x:Name="textBox_Количество" TextWrapping="Wrap" Margin="102,181,5,0" VerticalAlignment="Top" Height="20"/>
-            <Label x:Name="Количество" Content="Количество, м" HorizontalAlignment="Left" Margin="6,177,0,0" d:LayoutOverrides="HorizontalAlignment" VerticalAlignment="Top"/>
+            <Label x:Name="Количество" Content="Количество, шт" HorizontalAlignment="Left" Margin="6,177,0,0" d:LayoutOverrides="HorizontalAlignment" VerticalAlignment="Top"/>
             <TextBox x:Name="textBox_Диаметр" TextWrapping="Wrap" Margin="102,209,5,0" Height="20" VerticalAlignment="Top"/>
             <Label x:Name="Диаметр" Content="Диаметр, м" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,206,0,0" d:LayoutOverrides="HorizontalAlignment"/>
             <TextBox x:Name="textBox_Расстояние_до_экрана" TextWrapping="Wrap" Margin="102,247,5,0" Height="20" VerticalAlignment="Top"/>
@@ -34,9 +34,13 @@
             <Label x:Name="Диаметр_Копировать" Content="Расстояние &#xA;до экрана, м" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,236,0,0"/>
         </Grid>
         <Button x:Name="button" Grid.Column="2" Content="Рассчитать" Margin="10,364,10,0" d:LayoutOverrides="HorizontalAlignment" Height="40" VerticalAlignment="Top" Click="Button_Click"/>
-        <ProgressBar Grid.Column="2" Margin="10,414,10,0" Height="10" VerticalAlignment="Top"/>
-        <Grid HorizontalAlignment="Center" Height="414" VerticalAlignment="Center" Width="592">
-            <oxy:PlotView x:Name="shadowPlot" />
+        <ProgressBar Grid.Column="2" Margin="10,414,10,0" Minimum="0" Maximum="100" Height="10" VerticalAlignment="Top" Value="{Binding ProgressValue}"/>
+        <Grid Grid.Column="0" Margin="5">
+            <oxy:PlotView x:Name="shadowPlot"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Margin="0"/>
         </Grid>
+
     </Grid>
 </Window>

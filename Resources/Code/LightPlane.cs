@@ -5,117 +5,65 @@
     /// </summary>
     public static class LightPlane
     {
-        private static double thickness; // Толщина плоскости
-        private static double angle; // Угол наклона плоскости в градусах
-        public static Point[] Position { get; private set; }
-        /// <summary>
-        /// Возвращает или задает толщину плоскости.
-        /// </summary>
-        /// <remarks>Толщина должна быть больше нуля. Есть валидация.</remarks>
-        public static double Thickness 
+        private static double thickness;
+        private static double angle;
+
+        public static Vec2[] Position { get; private set; }
+
+        public static double Thickness
         {
-            get { return thickness; }
+            get => thickness;
             set
             {
-                if (value > 0)
-                {
-                    thickness = value;
-                    return;
-                }
-                throw new ArgumentOutOfRangeException("Толщина должна быть больше нуля.");
+                if (value <= 0)
+                    throw new ArgumentOutOfRangeException("Толщина должна быть больше нуля.");
+                thickness = value;
             }
         }
-        /// <summary>
-        /// Возвращает или задает угол наклона плоскости в градусах.
-        /// </summary>
-        /// <remarks>Допустимый диапазон угла от -90 до 90 градусов. Есть валидация.</remarks>
-        public static double Angle 
+
+        public static double Angle
         {
-            get { return angle; }
+            get => angle;
             set
             {
-                if (value >= -90 && value <= 90)
-                {
-                    angle = value;
-                    return;
-                }
-                throw new ArgumentOutOfRangeException("Угол должен быть в диапазоне от -90 до 90 градусов.");
+                if (value < -90 || value > 90)
+                    throw new ArgumentOutOfRangeException("Угол должен быть в диапазоне от -90 до 90 градусов.");
+                angle = value;
             }
         }
+
         /// <summary>
-        /// Задает расстояние от плоскости света до экрана
+        /// Расстояние от плоскости света до экрана.
         /// </summary>
         public static double DistanceToScreen { get; internal set; }
+
         /// <summary>
-        /// Метод для вычисления позиций точек параллелограмма, представляющего плоскость.
+        /// Вычисляет четыре вершины наклонённой плоскости.
         /// </summary>
-        /// <param name="radius">Радиус шара.</param>
-        /// <param name="size">Уровень увеличения.</param>
-        /// <param name="count">Количество шаров.</param>
-        /// <param name="DistanceToDisplay">Расстояние до экрана.</param>
-        /// <param name="step">Шаг точности.</param>
-        /// <returns></returns>
-        public static Point[] CalculatePosition(double step = 0.01)
+        public static Vec2[] CalculatePosition(double step = 0.01)
         {
-            // Расстояние до плоскости
             double distanceToPlane = Balls.Count * 100 + DistanceToScreen;
 
-            // Угол в радианах
             double angleRad = Angle * Math.PI / 180.0;
 
-            // Смещение второй грани (толщина)
+            // смещение по толщине с учётом угла
             double dx = Thickness * Math.Sin(angleRad);
-            double dy = 1000 * Math.Cos(angleRad);
+            double dy = Thickness * Math.Cos(angleRad);
 
-            // Левая передняя точка (L1)
-            Point L1 = new Point((int)distanceToPlane, 0);
+            // 4 точки параллелограмма
+            Vec2 L1 = new Vec2(distanceToPlane, 0);          // нижняя левая
+            Vec2 L2 = new Vec2(distanceToPlane + dx, dy);     // верхняя левая
+            Vec2 R2 = new Vec2(distanceToPlane + Thickness, 0); // нижняя правая
+            Vec2 R1 = new Vec2(distanceToPlane + dx + Thickness, dy); // верхняя правая
 
-            // Левая задняя точка (L2)
-            Point L2 = new Point((int)(distanceToPlane + dx), (int)(dy));
-
-            // Правая передняя точка (R1)
-            Point R1 = new Point((int)(distanceToPlane + dx + Thickness), (int)(dy));
-
-            // Правая задняя точка (R2)
-            Point R2 = new Point((int)(distanceToPlane + Thickness), 0);
-
-            List<Point> result = new List<Point>();
-
-            // Генерация точек на 2 боковых гранях
-            //GenerateEdgePoints(L1, L2, step, result); // левая
-            //GenerateEdgePoints(R1, R2, step, result); // правая
-
-            //Position = result.ToArray();
-            return Position = new Point[4] { L1, L2, R1, R2 }; ;
+            Position = new Vec2[] { L1, L2, R1, R2 };
+            return Position;
         }
-        /// <summary>
-        /// Генерация точек на одном ребре
-        /// </summary>
-        /// <param name="a">Точка 0,0</param>
-        /// <param name="b">Точка 1,0</param>
-        /// <param name="step">Шаг точности</param>
-        /// <param name="result">Результат</param>
-        private static void GenerateEdgePoints(Point a, Point b, double step, List<Point> result)
-        {
-            double length = Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-            int segments = Math.Max(1, (int)(length / step));
 
-            for (int i = 0; i <= segments; i++)
-            {
-                double t = (double)i / segments;
-                int x = (int)(a.X + (b.X - a.X) * t);
-                int y = (int)(a.Y + (b.Y - a.Y) * t);
-                result.Add(new Point(x, y));
-            }
-        }
-        /// <summary>
-        /// Используется для получения строкового представления координат плоскости.
-        /// </summary>
-        /// <remarks>Исключительно для отладки и логирования.</remarks>
-        /// <returns>Строку с координатами</returns>
         public static string ToString_()
         {
-            return $"LightPlane(Толщина: {Thickness}, Угол: {Angle}, Позиция: [{string.Join(", ", Position.Cast<object>())}])";
+            return $"LightPlane(Толщина: {Thickness}, Угол: {Angle}, " +
+                   $"Позиции: [{string.Join(", ", Position.Select(p => p.ToString()))}])";
         }
     }
 }

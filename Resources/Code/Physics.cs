@@ -1,174 +1,136 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ShadowScope.Resources.Code
 {
-    /// <summary>
-    /// Класс физики
-    /// </summary>
     internal static class Physics
     {
-        // TODO: Оптимизация физики для больших количеств шаров (100k+)
-        // TODO: Параллельные вычисления
-        // Свойства системы
-        /// <summary>
-        /// Задает тип распределения шаров
-        /// </summary>
         public static DistributionType Distribution_Type { get; internal set; }
-        /// <summary>
-        /// Малый шаг времени для расчета физики
-        /// </summary>
         public const double DTime = 1;
-        /// <summary>
-        /// Получает время моделирования
-        /// </summary>
-        public static double Time { get; internal set; }
-        /// <summary>
-        /// Задает площадь в экране на каждом шаге моделирования
-        /// </summary>
-        public static Dictionary<double, double> SumArea { get; internal set; } // Время - Площадь
-        /// <summary>
-        /// Представляет массив шаров
-        /// </summary>
-        public static List<Ball> Balls_Array { get; internal set; }
-        /// <summary>
-        /// Определяет позицию генерации шаров
-        /// </summary>
-        private static Point[] Position_Generator { get; set; }
-        private static Random? Random;
 
-        // Методы физики
-        /// <summary>
-        /// Метод инициализации физики
-        /// </summary>
-        /// <param name="position_Generator">4 Координаты генератора шаров.</param>
+        public static double Time { get; internal set; }
+        public static double[] SumArea { get; private set; }
+
+        public static Ball[] Balls_Array { get; private set; }
+        private static Vec2[] Position_Generator;
+
+        [ThreadStatic]
+        private static Random threadRnd;
+
+        private static Random GlobalRnd = new();
+
         public static void InitializePhysics()
         {
-            Random = new Random();
-            Position_Generator = new Point[4] { new Point(0, 0), new Point(0, 1000), new Point(Balls.Count * 100, 1000), new Point(Balls.Count * 100, 0) };
-            Balls_Array = new List<Ball>();
-            Time = Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10;   // Время равно расстоянию от генератора до экрана + расстояние от экрана до тени + запас
-            SumArea = new Dictionary<double, double>();
+            Position_Generator = new[]
+            {
+                new Vec2(0,0),
+                new Vec2(0,1000),
+                new Vec2(Balls.Count * 100,1000),
+                new Vec2(Balls.Count * 100,0)
+            };
+
+            Time = Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10;
+            SumArea = new double[(int)Time + 1];
+            Balls_Array = new Ball[Balls.Count];
         }
+
         public static void Start(Action<double> reportProgress)
         {
-            double progress = 0;
             SpawnBalls(Distribution_Type);
-            for (double i = 0; i < Time; i+= DTime)
+
+            int totalSteps = (int)(Time / DTime);
+            double progress = 0;
+
+            for (int step = 0; step < totalSteps; step++)
             {
-                double currentArea = 0.0;
-                foreach (var ball in Balls_Array)
-                {
-                    // Проверяем, пересек ли шар плоскость света
-                    if (ball.IntersectsPlaneX())
+                double t = step * DTime;
+                double areaAccumulator = 0;
+
+                Parallel.For(0, Balls_Array.Length, () => 0.0,
+                    (i, state, local) =>
                     {
-                        // Добавляем площадь шара к текущей площади
-                        currentArea += ball.AreaDt;
-                    }
-                    // Двигаем шар
-                    ball.MoveBall(DTime);
-                }
-                // Сохраняем площадь на текущий момент времени
-                SumArea[i] = currentArea;
-                // Отчет о прогрессе
-                progress += 1;
+                        ref Ball b = ref Balls_Array[i];
+
+                        if (b.IntersectsPlaneX())
+                            local += b.AreaDt;
+
+                        b.MoveBall(DTime);
+                        return local;
+                    },
+                    local => InterlockedAdd(ref areaAccumulator, local)
+                );
+
+                SumArea[step] = areaAccumulator;
+
+                progress++;
                 reportProgress?.Invoke(progress);
             }
         }
-        /// <summary>
-        /// Метод сброса физической системы
-        /// </summary>
+
+        private static void InterlockedAdd(ref double location, double value)
+        {
+            double initial, computed;
+            do
+            {
+                initial = location;
+                computed = initial + value;
+            }
+            while (Interlocked.CompareExchange(ref location, computed, initial) != initial);
+        }
+
         public static void ResetPhysics()
         {
-            Time = Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10;   // Время равно расстоянию от генератора до экрана + расстояние от экрана до тени + запас
-            SumArea.Clear();
-            Balls_Array.Clear();
+            Array.Clear(SumArea, 0, SumArea.Length);
         }
-        /// <summary>
-        /// Метод генерации шаров
-        /// </summary>
+
         public static void SpawnBalls(DistributionType type)
         {
-            Balls_Array.Clear();
-
             for (int i = 0; i < Balls.Count; i++)
             {
-                double rx = Sample(type);  // 0..1
-                double ry = Sample(type);  // 0..1
+                double rx = Sample(type);
+                double ry = Sample(type);
 
-                // Преобразуем в нужный диапазон
                 double x = Lerp(Position_Generator[0].X, Position_Generator[2].X, rx);
                 double y = Lerp(Position_Generator[3].Y, Position_Generator[2].Y, ry);
 
-                Balls_Array.Add(new Ball(Balls.Radius, Balls.Speed, new Point((int)x, (int)y)));
+                Balls_Array[i] = new Ball(Balls.Radius, Balls.Speed, new Vec2(x, y));
             }
         }
-        /// <summary>
-        /// Метод линейной интерполяции
-        /// </summary>
-        /// <param name="min">Минимум</param>
-        /// <param name="max">Максимум</param>
-        /// <param name="t">Коэфициент</param>
-        /// <returns></returns>
-        private static double Lerp(double min, double max, double t)
+
+        private static double Lerp(double a, double b, double t) => a + (b - a) * t;
+
+        private static Random GetRnd()
         {
-            return min + (max - min) * t;
+            return threadRnd ??= new Random(GlobalRnd.Next());
         }
-        /// <summary>
-        /// Метод выборки распределения
-        /// </summary>
-        /// <param name="type">Тип распределения</param>
-        /// <returns>Число от 0.0 до 1.0</returns>
+
         private static double Sample(DistributionType type)
         {
             return type switch
             {
-                DistributionType.Uniform => UniformDistribution(),
-                DistributionType.Normal => NormalDistribution(),
-                DistributionType.Rayleigh => RayleighDistribution(),
-
-                _ => UniformDistribution()
+                DistributionType.Uniform => GetRnd().NextDouble(),
+                DistributionType.Normal => Normal(),
+                DistributionType.Rayleigh => Rayleigh(),
+                _ => GetRnd().NextDouble()
             };
         }
 
-        // Методы распределений
-        /// <summary>
-        /// Метод равномерного распределения
-        /// </summary>
-        /// <returns>Возвращает значение в диапазоне от 0 до 1</returns>
-        public static double UniformDistribution()
+        private static double Normal()
         {
-            return Random.NextDouble();
-        }
-        /// <summary>
-        /// Метод нормального распределения
-        /// </summary>
-        /// <returns>Возвращает значение в диапазоне от 0 до 1</returns>
-        public static double NormalDistribution()
-        {
-            double u1 = 1.0 - Random.NextDouble();
-            double u2 = 1.0 - Random.NextDouble();
+            var rnd = GetRnd();
+            double u1 = 1.0 - rnd.NextDouble();
+            double u2 = 1.0 - rnd.NextDouble();
             double normal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Cos(2 * Math.PI * u2);
-
-            // Масштабируем в диапазон 0..1
-            double t = 0.5 + normal * 0.15;
-
-            // Ограничиваем
-            return Math.Clamp(t, 0.0, 1.0);
+            return Math.Clamp(0.5 + normal * 0.15, 0.0, 1.0);
         }
-        /// <summary>
-        /// Метод распределения Рэлея
-        /// </summary>
-        /// <returns>Возвращает значение в диапазоне от 0 до 1</returns>
-        public static double RayleighDistribution()
+
+        private static double Rayleigh()
         {
-            double u = Random.NextDouble();
+            var rnd = GetRnd();
+            double u = rnd.NextDouble();
             double sigma = 0.3;
-
-            double r = sigma * Math.Sqrt(-2.0 * Math.Log(1 - u));
-
-            // нормализация в 0..1
-            return Math.Clamp(r, 0.0, 1.0);
+            return Math.Clamp(sigma * Math.Sqrt(-2.0 * Math.Log(1 - u)), 0.0, 1.0);
         }
     }
 }

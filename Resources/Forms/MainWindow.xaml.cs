@@ -45,7 +45,7 @@ namespace ShadowScope
         /// </summary>
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            // Считывание и валидация параметров
+            // 1. Считывание и валидация параметров
             LightPlane.Thickness = ValidateInput(0.0001, 1000, textBox_Толщина.Text);
             LightPlane.Angle = ValidateInput(0, 180, textBox_Угол.Text);
             LightPlane.DistanceToScreen = ValidateInput(0, 10000, textBox_Расстояние_до_экрана.Text);
@@ -53,6 +53,7 @@ namespace ShadowScope
             Balls.Radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
             Balls.Speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
             Balls.Count = (int)ValidateInput(1, 1000000, textBox_Количество.Text);
+
             Physics.Distribution_Type = comboBox.SelectedIndex switch
             {
                 0 => DistributionType.Uniform,
@@ -60,23 +61,29 @@ namespace ShadowScope
                 2 => DistributionType.Rayleigh,
                 _ => DistributionType.Uniform
             };
-            // Сброс прогресса
+
+            // 2. Сброс прогресса
             ProgressValue = 0;
 
+            // 3. Инициализация физики и плоскости
             Physics.InitializePhysics();
             LightPlane.CalculatePosition();
             Physics.ResetPhysics();
-            // Запуск физики в фоне
+
+            int totalSteps = (int)Physics.Time;
+
+            // 4. Запуск расчёта физики в фоне
             await Task.Run(() =>
             {
-                Physics.Start(value =>
+                Physics.Start(progress =>
                 {
-                    // Обновление ProgressBar в UI-потоке
-                    Dispatcher.Invoke(() => ProgressValue = value);
+                    // Обновляем ProgressBar не каждый шаг, а каждые 1000 итераций для плавности
+                    if (progress % Math.Max(1, totalSteps / 1000) == 0)
+                        Dispatcher.Invoke(() => ProgressValue = progress);
                 });
             });
 
-            // После завершения расчетов отрисовать график
+            // 5. Построение графика после завершения расчетов
             DrawShadowGraph();
         }
         /// <summary>
@@ -111,27 +118,21 @@ namespace ShadowScope
 
         private void DrawShadowGraph()
         {
-            // Создаём модель графика
             var plotModel = new PlotModel { Title = "Площадь тени" };
-
-            // Создаём серию точек
             var series = new LineSeries
             {
                 Title = "Тень",
                 StrokeThickness = 2,
                 LineStyle = LineStyle.Solid,
-                MarkerType = MarkerType.None // <-- никаких точек
+                MarkerType = MarkerType.None
+                
             };
 
-            // Словарь: ключ = радиус, значение = площадь тени
-            Dictionary<double, double> shadowDict = Physics.SumArea;
-
-            foreach (var kvp in shadowDict)
-                series.Points.Add(new DataPoint(kvp.Key, kvp.Value));
+            for (int i = 0; i < Physics.SumArea.Length; i++)
+                series.Points.Add(new DataPoint(i, Physics.SumArea[i]));
 
             plotModel.Series.Add(series);
 
-            // Названия осей
             plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
             {
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
@@ -145,5 +146,6 @@ namespace ShadowScope
 
             shadowPlot.Model = plotModel;
         }
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ShadowScope.Resources.Code
 {
-    internal class Balls
+    internal static class Balls
     {
         // Свойства шара
         private static double radius;  // Радиус шара
