@@ -15,7 +15,9 @@
         </Grid.ColumnDefinitions>
         <GridSplitter x:Name="gridSplitter" Grid.Column="1" HorizontalAlignment="Center" Width="3"/>
         <Grid Grid.Column="2" Margin="5,5,5,0" Height="404" VerticalAlignment="Top">
-            <Border BorderThickness="1" CornerRadius="6,6,6,6" d:LayoutOverrides="VerticalAlignment" Background="#FFDDDDDD" Padding="5,5,5,5" BorderBrush="#FFDDDDDD"/>
+            <Border BorderThickness="1" CornerRadius="6,6,6,6" d:LayoutOverrides="VerticalAlignment" Background="#FFDDDDDD" Padding="5,5,5,5" BorderBrush="#FFDDDDDD">
+                <CheckBox x:Name="CheckBox" Content="Логарифмировать" Margin="4,313,4,62"/>
+            </Border>
             <ComboBox x:Name="comboBox" Margin="102,284,5,0" Height="19" VerticalAlignment="Top"/>
             <TextBox x:Name="textBox_Толщина" TextWrapping="Wrap" Margin="80,37,5,0" Height="20" VerticalAlignment="Top"/>
             <Label x:Name="Свойства_Плоскости" Content="Свойства плоскости" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,6,0,0" FontWeight="Bold"/>
@@ -34,7 +36,8 @@
             <Label x:Name="Диаметр_Копировать" Content="Расстояние &#xA;до экрана, м" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,236,0,0"/>
         </Grid>
         <Button x:Name="button" Grid.Column="2" Content="Рассчитать" Margin="10,364,10,0" d:LayoutOverrides="HorizontalAlignment" Height="40" VerticalAlignment="Top" Click="Button_Click"/>
-        <ProgressBar Grid.Column="2" Margin="10,414,10,0" Minimum="0" Maximum="100" Height="10" VerticalAlignment="Top" Value="{Binding ProgressValue}"/>
+        <ProgressBar Grid.Column="2" Margin="10,414,10,0" Height="10" VerticalAlignment="Top"
+             Minimum="0" Maximum="100" Value="{Binding ProgressValue, Mode=OneWay}"/>
         <Grid Grid.Column="0" Margin="5">
             <oxy:PlotView x:Name="shadowPlot"
                   HorizontalAlignment="Stretch"

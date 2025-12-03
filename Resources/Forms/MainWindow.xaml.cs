@@ -1,4 +1,5 @@
 ﻿using OxyPlot;
+using OxyPlot.Axes;
 using OxyPlot.Series;
 using ShadowScope.Resources.Code;
 using System.ComponentModel;
@@ -33,6 +34,7 @@ namespace ShadowScope
         public MainWindow() // Конструктор главного окна
         {
             InitializeComponent();
+            DataContext = this;
             ExtraInitialize();
         }
 
@@ -50,8 +52,8 @@ namespace ShadowScope
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             // Считывание и валидация параметров
-            LightPlane.Thickness = ValidateInput(0.0001, 1000, textBox_Толщина.Text);
-            LightPlane.Angle = ValidateInput(0, 180, textBox_Угол.Text);
+            LightPlane.Thickness = ValidateInput(0.0001, 10000, textBox_Толщина.Text);
+            LightPlane.Angle = ValidateInput(-90, 90, textBox_Угол.Text);
             LightPlane.DistanceToScreen = ValidateInput(0, 10000, textBox_Расстояние_до_экрана.Text);
 
             Balls.Radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
@@ -65,9 +67,6 @@ namespace ShadowScope
                 2 => DistributionType.Rayleigh,
                 _ => DistributionType.Uniform
             };
-
-            // Сброс прогресса
-            ProgressValue = 0;
 
             // Инициализация физики и плоскости
             Physics.InitializePhysics();
@@ -140,19 +139,30 @@ namespace ShadowScope
             plotModel.Series.Add(series);   // Добавление серии в модель графика
 
             // Настройка осей графика
-            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+            plotModel.Axes.Add(new LinearAxis
             {
-                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                Position = AxisPosition.Bottom,
                 Title = "Время, с"
             });
-            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+
+            if (CheckBox.IsChecked == false)
             {
-                Position = OxyPlot.Axes.AxisPosition.Left,
-                Title = "Площадь тени м²"
-            });
-
+                plotModel.Axes.Add(new LinearAxis   // Линейная ось Y
+                {
+                    Position = AxisPosition.Left,
+                    Title = "Площадь тени м²"
+                });
+            }
+            else
+            {
+                plotModel.Axes.Add(new LogarithmicAxis  // Логарифмическая ось Y
+                {
+                    Position = AxisPosition.Left,
+                    Title = "Площадь тени (log), м²"
+                });
+            }
             shadowPlot.Model = plotModel;   // Установка модели графика в элемент управления
+            ProgressValue = 100; // Установка прогресса на 100% после завершения отрисовки графика
         }
-
     }
 }

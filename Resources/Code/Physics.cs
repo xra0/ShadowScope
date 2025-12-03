@@ -6,7 +6,7 @@
     internal static class Physics
     {
         public static DistributionType Distribution_Type { get; internal set; } // Тип распределения для генерации позиций шаров
-        public const double DTime = 1;  // Шаг времени для симуляции
+        public static double DTime;  // Шаг времени для симуляции
 
         /// <summary>
         /// Общее время симуляции
@@ -45,9 +45,11 @@
                 new Vec2(Balls.Count * 100,0)
             };
 
-            Time = Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10;     // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
+            Time = (Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10)/Balls.Speed;     // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
             SumArea = new double[(int)Time + 1];
             Balls_Array = new Ball[Balls.Count];
+
+            DTime = 1;
         }
 
         /// <summary>
@@ -83,7 +85,7 @@
 
                 SumArea[step] = areaAccumulator;    // Сохранение суммарной площади для текущего шага времени
 
-                progress++; // Обновление прогресса
+                progress+= 0.25; // Обновление прогресса
                 reportProgress?.Invoke(progress);   // Вызов делегата для отчета о прогрессе
             }
         }
