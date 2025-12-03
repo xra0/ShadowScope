@@ -52,9 +52,9 @@ namespace ShadowScope
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             // Считывание и валидация параметров
-            LightPlane.Thickness = ValidateInput(0.0001, 10000, textBox_Толщина.Text);
+            LightPlane.Thickness = ValidateInput(0.0001, 1000000, textBox_Толщина.Text);
             LightPlane.Angle = ValidateInput(-90, 90, textBox_Угол.Text);
-            LightPlane.DistanceToScreen = ValidateInput(0, 10000, textBox_Расстояние_до_экрана.Text);
+            LightPlane.DistanceToScreen = ValidateInput(0, 100000, textBox_Расстояние_до_экрана.Text);
 
             Balls.Radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
             Balls.Speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
