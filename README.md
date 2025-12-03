@@ -71,6 +71,8 @@ x=Clamp(r,0,1)
 
 - показывает зависимость Площадь тени → Время.
 
+- Его можно логарифмировать для лучшего просмотра.
+
 <img width="803" height="486" alt="image" src="https://github.com/user-attachments/assets/42ce7b28-30d3-4941-aed7-65cc3be6ea72" />
 
 ## Производительность
