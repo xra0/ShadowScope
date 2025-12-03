@@ -4,7 +4,7 @@ ShadowScope — WPF-приложение для моделирования и в
 
 ---
 
-<img width="1000" height="600" alt="scheme" src="https://github.com/user-attachments/assets/164f05fb-8b88-4421-8a31-9bb59becfc7a" />
+<img width="1000" height="956" alt="scheme" src="https://github.com/user-attachments/assets/64fb3a4f-fa8b-4d27-b62c-dd69b5eecc4e" />
 
 ## Возможности
 
@@ -71,7 +71,7 @@ x=Clamp(r,0,1)
 
 - показывает зависимость Площадь тени → Время.
 
-<img width="809" height="471" alt="image" src="https://github.com/user-attachments/assets/2339b5fc-9119-4e9c-9322-fec84f59b32e" />
+<img width="803" height="486" alt="image" src="https://github.com/user-attachments/assets/42ce7b28-30d3-4941-aed7-65cc3be6ea72" />
 
 ## Производительность
 
