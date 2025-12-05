@@ -52,13 +52,36 @@ namespace ShadowScope
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             // Считывание и валидация параметров
-            LightPlane.Thickness = ValidateInput(0.0001, 1000000, textBox_Толщина.Text);
-            LightPlane.Angle = ValidateInput(-90, 90, textBox_Угол.Text);
-            LightPlane.DistanceToScreen = ValidateInput(0, 100000, textBox_Расстояние_до_экрана.Text);
+            double thickness = ValidateInput(0.0001, 1000000, textBox_Толщина.Text);
+            double angle = ValidateInput(-90, 90, textBox_Угол.Text);
+            double dist = ValidateInput(0, 100000, textBox_Расстояние_до_экрана.Text);
 
-            Balls.Radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
-            Balls.Speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
-            Balls.Count = (int)ValidateInput(1, 1000000, textBox_Количество.Text);
+            double radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
+            double speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
+            double count = ValidateInput(1, 1000000, textBox_Количество.Text);
+
+            if (double.IsNaN(thickness) ||
+                double.IsNaN(angle) ||
+                double.IsNaN(dist) ||
+                double.IsNaN(radius) ||
+                double.IsNaN(speed) ||
+                double.IsNaN(count))
+            {
+                MessageBox.Show("Проверьте корректность введённых данных.",
+                                "Ошибка!",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                return;
+            }
+
+            // Всё валидно — записываем
+            LightPlane.Thickness = thickness;
+            LightPlane.Angle = angle;
+            LightPlane.DistanceToScreen = dist;
+
+            Balls.Radius = radius;
+            Balls.Speed = speed;
+            Balls.Count = (int)count;
 
             Physics.Distribution_Type = comboBox.SelectedIndex switch
             {
@@ -72,6 +95,22 @@ namespace ShadowScope
             Physics.InitializePhysics();
             LightPlane.CalculatePosition();
             Physics.ResetPhysics();
+
+            // Проверка времени симуляции
+            if (Physics.Time > 10000)
+            {
+                var result = MessageBox.Show(
+                    $"Время симуляции очень велико ({Physics.Time:0}).\n" +
+                    "Расчёт может занять продолжительное время.\n\n" +
+                    "Продолжить?",
+                    "Предупреждение",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning
+                );
+
+                if (result == MessageBoxResult.No)
+                    return; // Прерываем выполнение
+            }
 
             int totalSteps = (int)Physics.Time;
 
@@ -98,24 +137,29 @@ namespace ShadowScope
         /// <returns>Разобранное значение типа double, если ввод корректен и находится в указанном диапазоне; в противном случае <see cref="double.NaN"/>.</returns>
         private double ValidateInput(double min, double max, string input)
         {
-            if (input == null || input == "")
+            if (string.IsNullOrWhiteSpace(input))
             {
                 MessageBox.Show("Пожалуйста, введите значение.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
                 return double.NaN;
             }
-            if (double.TryParse(input, out double value))
-            {
-                if (value < min || value > max)
-                {
-                    MessageBox.Show($"Значение должно быть в диапазоне от {min} до {max}.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
+
+            input = input.Replace('.', ',');
+
+            if (!double.TryParse(input, out double value))
             {
                 MessageBox.Show("Пожалуйста, введите корректное числовое значение.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return double.NaN;
             }
+
+            if (value < min || value > max)
+            {
+                MessageBox.Show($"Значение должно быть в диапазоне от {min} до {max}.", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return double.NaN;
+            }
+
             return value;
         }
+
 
         /// <summary>
         /// Метод для отрисовки графика площади тени.
@@ -134,7 +178,7 @@ namespace ShadowScope
             };
 
             for (int i = 0; i < Physics.SumArea.Length; i++)
-                series.Points.Add(new DataPoint(i, Physics.SumArea[i]));    // Добавление точек данных в серию
+                series.Points.Add(new DataPoint(i, Math.Round(Physics.SumArea[i], 3)));    // Добавление точек данных в серию
 
             plotModel.Series.Add(series);   // Добавление серии в модель графика
 
