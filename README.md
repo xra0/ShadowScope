@@ -4,11 +4,11 @@ ShadowScope — WPF-приложение для моделирования и в
 
 ---
 
-<img width="1000" height="956" alt="scheme" src="https://github.com/user-attachments/assets/64fb3a4f-fa8b-4d27-b62c-dd69b5eecc4e" />
+<img width="1000" height="956" alt="scheme" src="https://github.com/user-attachments/assets/85b64456-99d4-4ff0-83b8-80426757b2c0" />
 
 ## Возможности
 
-- Расчёт траекторий большого количества объектов (до **10 000**(придется подождать)).
+- Расчёт траекторий большого количества объектов (до **1 000 000**).
 - Поддержка распределений:
   - **Равномерное**
   - **Нормальное (Box–Muller)**
@@ -73,7 +73,7 @@ x=Clamp(r,0,1)
 
 - Его можно логарифмировать для лучшего просмотра.
 
-<img width="803" height="486" alt="image" src="https://github.com/user-attachments/assets/42ce7b28-30d3-4941-aed7-65cc3be6ea72" />
+<img width="786" height="493" alt="image" src="https://github.com/user-attachments/assets/c82a34e1-4ba9-46ff-97d0-0e6b22c5991e" />
 
 ## Производительность
 
@@ -86,4 +86,4 @@ x=Clamp(r,0,1)
 - при необходимости — `Parallel.For`
 
 В результате приложение поддерживает до 1 000 000 расчётных объектов.
-ВНИМАНИЕ! Не рекомендуется запускать если время будет больше 10000 с.
+Если время будет больше 10000 с - вам будет предложен выбор продожения симуляции.
