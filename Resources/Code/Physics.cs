@@ -1,4 +1,6 @@
-﻿namespace ShadowScope.Resources.Code
+﻿using System.Windows;
+
+namespace ShadowScope.Resources.Code
 {
     /// <summary>
     /// Класс, отвечающий за физику движения шаров и их взаимодействие с плоскостью света.
@@ -37,15 +39,16 @@
         /// </summary>
         public static void InitializePhysics()
         {
-            Position_Generator = new[]
-            {
+            double length = Math.Sqrt(Balls.Count * 10 + 1);
+            Position_Generator =
+            [
                 new Vec2(0,0),
-                new Vec2(0,1000),
-                new Vec2(Balls.Count * 100,1000),
-                new Vec2(Balls.Count * 100,0)
-            };
+                new Vec2(0,length),
+                new Vec2(length,length),
+                new Vec2(length,0)
+            ];
 
-            Time = (Balls.Count * 100 + LightPlane.DistanceToScreen + LightPlane.Thickness + 10)/Balls.Speed;     // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
+            Time = (length + LightPlane.DistanceToScreen + LightPlane.Thickness + length * Math.Tan(LightPlane.Angle) + 10) /Balls.Speed;     // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
             SumArea = new double[(int)Time + 1];
             Balls_Array = new Ball[Balls.Count];
 

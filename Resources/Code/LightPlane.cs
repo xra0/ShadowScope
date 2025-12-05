@@ -30,7 +30,7 @@
         }
 
         /// <summary>
-        /// Угол наклона плоскости в градусах.
+        /// Угол наклона плоскости в радианах.
         /// </summary>
         /// <remarks>Допустимый диапазон угла от -90 до 90 градусов.</remarks>
         public static double Angle
@@ -40,7 +40,7 @@
             {
                 if (value < -90 || value > 90)
                     throw new ArgumentOutOfRangeException("Угол должен быть в диапазоне от -90 до 90 градусов.");
-                angle = value;
+                angle = value * Math.PI / 180.0;
             }
         }
 
@@ -63,13 +63,11 @@
         /// <returns>Vec2 Массив координат</returns>
         public static Vec2[] CalculatePosition(double step = 0.01)
         {
-            double distanceToPlane = Balls.Count * 100 + DistanceToScreen;  // Расстояние до плоскости света
-
-            double angleRad = Angle * Math.PI / 180.0;  // угол в радианах
+            double distanceToPlane = Math.Sqrt(Balls.Count * 10 + 1) + DistanceToScreen;  // Расстояние до плоскости света
 
             // смещение по толщине с учётом угла
-            double dx = Thickness * Math.Sin(angleRad);
-            double dy = Thickness * Math.Cos(angleRad);
+            double dx = Thickness * Math.Sin(Angle);
+            double dy = Thickness * Math.Cos(Angle);
 
             // 4 точки параллелограмма
             Vec2 L1 = new Vec2(distanceToPlane, 0);          // нижняя левая
@@ -78,17 +76,6 @@
             Vec2 R1 = new Vec2(distanceToPlane + dx + Thickness, dy); // верхняя правая
 
             return Position = [L1, L2, R1, R2];
-        }
-
-        /// <summary>
-        /// Метод для получения строкового представления плоскости.
-        /// </summary>
-        /// <remarks>Нужно для отладки.</remarks>
-        /// <returns>Строка с информацией о плоскости</returns>
-        private static string ToString_()
-        {
-            return $"LightPlane(Толщина: {Thickness}, Угол: {Angle}, " +
-                   $"Позиции: [{string.Join(", ", Position.Select(p => p.ToString()))}])";
         }
     }
 }
