@@ -7,6 +7,7 @@
     {
         private static double thickness;    // Толщина плоскости
         private static double angle;        // Угол наклона плоскости в градусах
+        private static double distanceToScreen; // Расстояние от плоскости света до экрана
 
         /// <summary>
         /// Массив из четырёх вершин плоскости.
@@ -53,6 +54,7 @@
             {
                 if (value < 0)
                     throw new ArgumentOutOfRangeException("Расстояние до экрана не может быть отрицательным.");
+                distanceToScreen = value;
             } 
         }
 
