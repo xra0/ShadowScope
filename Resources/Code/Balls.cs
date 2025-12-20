@@ -3,7 +3,7 @@
     /// <summary>
     /// Представляет структуру для управления свойствами шаров.
     /// </summary>
-    internal static class Balls
+    public static class Balls
     {
         // Свойства шаров
         private static double radius;  // Радиус шара
@@ -76,7 +76,7 @@
                 new Vec2(length,length),
                 new Vec2(length,0)
             ];
-            Array = new Ball[Balls.Count];
+            Array = new Ball[Count];
         }
 
         /// <summary>
@@ -85,7 +85,7 @@
         /// <param name="type">Тип распределения</param>
         public static void SpawnBalls(DistributionType type)
         {
-            for (int i = 0; i < Balls.Count; i++)
+            for (int i = 0; i < Count; i++)
             {
                 double rx = Sample(type);   // 0..1
                 double ry = Sample(type);   // 0..1
@@ -93,7 +93,7 @@
                 double x = Lerp(Position_Generator[0].X, Position_Generator[2].X, rx);  // Линейная интерполяция по X
                 double y = Lerp(Position_Generator[3].Y, Position_Generator[2].Y, ry);  // Линейная интерполяция по Y
 
-                Array[i] = new Ball(Balls.Radius, Balls.Speed, new Vec2(x, y));
+                Array[i] = new Ball(Radius, Speed, new Vec2(x, y));
             }
         }
 
@@ -117,7 +117,7 @@
         /// Метод для получения экземпляра Random, уникального для каждого потока
         /// </summary>
         /// <returns>Экземпляр Random</returns>
-        private static Random GetRnd()
+        public static Random GetRnd()
         {
             return threadRnd ??= new Random(GlobalRnd.Next());
         }
@@ -126,7 +126,7 @@
         /// Метод для генерации случайного числа с нормальным распределением, усеченного до диапазона [0,1]
         /// </summary>
         /// <returns>Число в диапазоне [0,1]</returns>
-        private static double Normal()
+        public static double Normal()
         {
             var rnd = GetRnd();
             double u1 = 1.0 - rnd.NextDouble();
@@ -139,7 +139,7 @@
         /// Метод для генерации случайного числа с распределением Релея, усеченного до диапазона [0,1]
         /// </summary>
         /// <returns>Число в диапазоне [0,1]</returns>
-        private static double Rayleigh()
+        public static double Rayleigh()
         {
             var rnd = GetRnd();
             double u = rnd.NextDouble();

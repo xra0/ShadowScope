@@ -135,7 +135,7 @@ namespace ShadowScope
         /// <param name="max">Максимально допустимое значение для ввода. Разобранное число должно быть меньше или равно этому значению.</param>
         /// <param name="input">Строка ввода для проверки. Должна представлять числовое значение в указанном диапазоне.</param>
         /// <returns>Разобранное значение типа double, если ввод корректен и находится в указанном диапазоне; в противном случае <see cref="double.NaN"/>.</returns>
-        private double ValidateInput(double min, double max, string input)
+        public double ValidateInput(double min, double max, string input)
         {
             if (string.IsNullOrWhiteSpace(input))
             {

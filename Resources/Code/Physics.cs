@@ -3,7 +3,7 @@
     /// <summary>
     /// Класс, отвечающий за физику движения шаров и их взаимодействие с плоскостью света.
     /// </summary>
-    internal static class Physics
+    public static class Physics
     {
         public static DistributionType Distribution_Type { get; internal set; } // Тип распределения для генерации позиций шаров
         
@@ -17,7 +17,7 @@
         /// <summary>
         /// Массив для хранения суммарной площади шаров, пересекающих плоскость света на каждом шаге времени
         /// </summary>
-        public static double[] SumArea { get; private set; }
+        public static double[] SumArea { get; set; }
 
         /// <summary>
         /// Метод инициализации физических параметров симуляции

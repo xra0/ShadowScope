@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../Test_ShadowScope/Tests/Tests.csproj" Id="ef18ce31-b4cf-4c70-bffa-014df8da384d" />
   <Project Path="ShadowScope.csproj" />
 </Solution>
