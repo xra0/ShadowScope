@@ -25,7 +25,9 @@
         public static void InitializePhysics()
         {
             Balls.InitializeGenerator(); // Инициализация генератора шаров
-            Time = (Math.Sqrt(Balls.Count * 10 + 1) + LightPlane.DistanceToScreen + LightPlane.Thickness + Math.Sqrt(Balls.Count * 10 + 1) * Math.Tan(LightPlane.Angle) + 10) /Balls.Speed;     // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
+            // Время численно равно расстоянию, которое должен пройти самый дальний шар плюс запас
+            Time = (Math.Sqrt(Balls.Count * 10 + 1) + LightPlane.DistanceToScreen + LightPlane.Thickness + 
+                Math.Sqrt(Balls.Count * 10 + 1) * Math.Tan(LightPlane.Angle) + 10) /Balls.Speed;
             SumArea = new double[(int)Time + 1];
             Balls.SpawnBalls(Distribution_Type);  // Генерация начальных позиций шаров
         }
@@ -79,7 +81,8 @@
                 initial = location;
                 computed = initial + value;
             }
-            while (Interlocked.CompareExchange(ref location, computed, initial) != initial);    // Повторяем, пока не удастся успешно обновить значение
+            // Повторяем, пока не удастся успешно обновить значение
+            while (Interlocked.CompareExchange(ref location, computed, initial) != initial);    
         }
 
         /// <summary>
