@@ -49,7 +49,11 @@
         /// Расстояние от плоскости света до экрана.
         /// </summary>
         /// <remarks>Расстояние не может быть отрицательным.</remarks>
-        public static double DistanceToScreen { get; 
+        public static double DistanceToScreen { 
+            get
+            {
+                return distanceToScreen;
+            }
             set
             {
                 if (value < 0)

@@ -16,7 +16,7 @@
         <GridSplitter x:Name="gridSplitter" Grid.Column="1" HorizontalAlignment="Center" Width="3"/>
         <Grid Grid.Column="2" Margin="5,5,5,0" Height="404" VerticalAlignment="Top">
             <Border BorderThickness="1" CornerRadius="6,6,6,6" d:LayoutOverrides="VerticalAlignment" Background="#FFDDDDDD" Padding="5,5,5,5" BorderBrush="#FFDDDDDD">
-                <CheckBox x:Name="CheckBox" Content="Логарифмировать &#xD;&#xA;график" Margin="4,313,4,46"/>
+                <CheckBox x:Name="CheckBox" Content="Логарифмировать &#xD;&#xA;график" Margin="4,313,4,46" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"/>
             </Border>
             <ComboBox x:Name="comboBox" Margin="102,284,5,0" Height="19" VerticalAlignment="Top"/>
             <TextBox x:Name="textBox_Толщина" TextWrapping="Wrap" Margin="80,37,5,0" Height="20" VerticalAlignment="Top"/>

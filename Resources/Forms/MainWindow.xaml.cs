@@ -1,8 +1,11 @@
-﻿using OxyPlot;
+﻿using Microsoft.Win32;
+using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using ShadowScope.Resources.Code;
 using System.ComponentModel;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 
 namespace ShadowScope
@@ -51,45 +54,7 @@ namespace ShadowScope
         /// </summary>
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            // Считывание и валидация параметров
-            double thickness = ValidateInput(0.0001, 1000000, textBox_Толщина.Text);
-            double angle = ValidateInput(-90, 90, textBox_Угол.Text);
-            double dist = ValidateInput(0, 100000, textBox_Расстояние_до_экрана.Text);
-
-            double radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
-            double speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
-            double count = ValidateInput(1, 1000000, textBox_Количество.Text);
-
-            if (double.IsNaN(thickness) ||
-                double.IsNaN(angle) ||
-                double.IsNaN(dist) ||
-                double.IsNaN(radius) ||
-                double.IsNaN(speed) ||
-                double.IsNaN(count))
-            {
-                MessageBox.Show("Проверьте корректность введённых данных.",
-                                "Ошибка!",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                return;
-            }
-
-            // Всё валидно — записываем
-            LightPlane.Thickness = thickness;
-            LightPlane.Angle = angle;
-            LightPlane.DistanceToScreen = dist;
-
-            Balls.Radius = radius;
-            Balls.Speed = speed;
-            Balls.Count = (int)count;
-
-            Physics.Distribution_Type = comboBox.SelectedIndex switch
-            {
-                0 => DistributionType.Uniform,
-                1 => DistributionType.Normal,
-                2 => DistributionType.Rayleigh,
-                _ => DistributionType.Uniform
-            };
+            GlobalCheck(); // Глобальная проверка и установка параметров
 
             // Инициализация физики и плоскости
             Physics.InitializePhysics();
@@ -178,7 +143,7 @@ namespace ShadowScope
             };
 
             for (int i = 0; i < Physics.SumArea.Length; i++)
-                series.Points.Add(new DataPoint(i, Math.Round(Physics.SumArea[i], 3)));    // Добавление точек данных в серию
+                series.Points.Add(new DataPoint(i + Math.Round(LightPlane.DistanceToScreen/Balls.Speed, 3), Math.Round(Physics.SumArea[i], 3)));    // Добавление точек данных в серию
 
             plotModel.Series.Add(series);   // Добавление серии в модель графика
 
@@ -207,6 +172,60 @@ namespace ShadowScope
             }
             shadowPlot.Model = plotModel;   // Установка модели графика в элемент управления
             ProgressValue = 100; // Установка прогресса на 100% после завершения отрисовки графика
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            GlobalCheck();
+            DrawShadowGraph();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            CheckBox_Checked(sender, e);
+        }
+
+        private void GlobalCheck()
+        {
+            // Считывание и валидация параметров
+            double thickness = ValidateInput(0.0001, 1000000, textBox_Толщина.Text);
+            double angle = ValidateInput(-90, 90, textBox_Угол.Text);
+            double dist = ValidateInput(0, 100000, textBox_Расстояние_до_экрана.Text);
+
+            double radius = ValidateInput(0.0001, 1000, textBox_Диаметр.Text);
+            double speed = ValidateInput(0.0001, 3000000, textBox_Скорость.Text);
+            double count = ValidateInput(1, 1000000, textBox_Количество.Text);
+
+            if (double.IsNaN(thickness) ||
+                double.IsNaN(angle) ||
+                double.IsNaN(dist) ||
+                double.IsNaN(radius) ||
+                double.IsNaN(speed) ||
+                double.IsNaN(count))
+            {
+                MessageBox.Show("Проверьте корректность введённых данных.",
+                                "Ошибка!",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                return;
+            }
+
+            // Всё валидно — записываем
+            LightPlane.Thickness = thickness;
+            LightPlane.Angle = angle;
+            LightPlane.DistanceToScreen = dist;
+
+            Balls.Radius = radius;
+            Balls.Speed = speed;
+            Balls.Count = (int)count;
+
+            Physics.Distribution_Type = comboBox.SelectedIndex switch
+            {
+                0 => DistributionType.Uniform,
+                1 => DistributionType.Normal,
+                2 => DistributionType.Rayleigh,
+                _ => DistributionType.Uniform
+            };
         }
     }
 }
